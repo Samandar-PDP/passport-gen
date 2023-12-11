@@ -17,16 +17,46 @@ class SqlHelper {
       )
       """
     );
+    await database.execute(
+        """
+      CREATE TABLE favorites(
+        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+        image TEXT NOT NULL,
+        full_name TEXT NOT NULL,
+        address TEXT NOT NULL,
+        city TEXT NOT NULL,
+        passport_got TEXT NOT NULL,
+        passport_expire TEXT NOT NULL
+      )
+      """
+    );
   }
 
   static Future<sql.Database> db() async {
     return sql.openDatabase(
       'passport.db,',
-      version: 1,
+      version: 2,
       onCreate: (sql.Database database, int version) async {
-        await createTable(database);
+       await createTable(database);
       }
     );
+  }
+
+  static Future<void> saveFavoritePassport(Passport passport) async {
+    final db = await SqlHelper.db();
+    db.insert('favorites', passport.toJson());
+  }
+
+  static Future<List<Passport>> getAllFavorites() async {
+    final db = await SqlHelper.db();
+    final data = await db.query('favorites',orderBy: 'id');
+    final List<Passport> passports = [];
+
+    for(var i in data) {
+      final passport = Passport.fromJson(i);
+      passports.add(passport);
+    }
+    return passports;
   }
 
   static Future<void> saveNewPassport(Passport passport) async {

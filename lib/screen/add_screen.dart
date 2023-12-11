@@ -80,9 +80,12 @@ class _AddScreenState extends State<AddScreen> {
   }
   void _saveNewPassport() {
     final newPassport = Passport(null, _fullname.text, _homeAddress.text, _city.text, _xFile?.path, _passportExpireDate.text, _passportGotDate.text);
-    SqlHelper.saveNewPassport(newPassport).then((value) {
+    SqlHelper.saveFavoritePassport(newPassport).then((value) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Saved")));
       Navigator.of(context).pushAndRemoveUntil(CupertinoPageRoute(builder: (context) => const MainScreen()), (route) => false);
+    });
+    SqlHelper.getAllFavorites().then((value) {
+      print(value.length);
     });
   }
 }
